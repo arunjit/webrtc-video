@@ -1,5 +1,8 @@
 
 ;(function() {
+var WIDTH = 640;
+var HEIGHT = 480;
+
 navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia);
 // var URL = window.URL || window.webkitURL;
 // var requestAnimationFrame = (window.requestAnimationFrame || window.webkitRequestAnimationFrame);
@@ -32,7 +35,20 @@ function stream() {
   var now = Date.now();
   if (stream.time && now - stream.time < 40) return;
   stream.time = now;
+  var context = canvas.getContext('2d');
+  context.drawImage(video, 0, 0, WIDTH, HEIGHT);
+  var imageData = context.getImageData(0, 0, WIDTH, HEIGHT);
+  var data = [];
+  for (var i = 0; i < imageData.length; i+=8) {  // skip alternate pixels
+    var pixel = (imageData[i+2]&0xff)<<4 |
+                (imageData[i+1]&0xff)<<2 |
+                (imageData[i]&0xff);
+    data.push(pixel);
+  }
+  // socket.emit('chunk', data);
+  log('chunk', data);
 }
+stream.time = null;
 
 function startStreaming() {
   log('streaming...');
@@ -41,11 +57,11 @@ function startStreaming() {
 }
 
 function stopStreaming() {
+  cancelAnimationFrame(stream);
   video.src = '';
   (videoStream && videoStream.stop) && videoStream.stop();
   show(startButton);
   hide(stopButton);
-  cancelAnimationFrame(stream);
 }
 
 function askForCamera() {
