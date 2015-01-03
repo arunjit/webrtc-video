@@ -1,0 +1,51 @@
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+html, body, h1, h2, h3, h4, h5, h6, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+[hidden] {
+  display: none;
+}
+
+header, #player, #buttons {
+  text-align: center;
+}
+
+#buttons {
+  margin-top: 10px;
+}
+button {
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  height: 56px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  width: 300px;
+  box-sizing: border-box;
+}
+button:focus {
+  outline: none;
+}
+#start-btn {
+  background-color: #5c5;
+  color: white;
+}
+#stop-btn {
+  background-color: #c55;
+  color: white;
+}
+
+#video {
+  border: 1px solid #e5e5e5;
+  background-color: #212121;
+}

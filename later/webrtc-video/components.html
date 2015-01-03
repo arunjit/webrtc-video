@@ -1,0 +1,23 @@
+<link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/socket-connection/socket-connection.html">
+
+<link rel="import" href="../polymer/polymer.html">
+<polymer-element name="webrtc-video" attributes="url">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <socket-connection url="{{url}}" auto>
+      <socket-emitter event="message"
+          value="{{chatMessage}}" auto></socket-emitter>
+    </socket-connection>
+    <paper-input value="{{chatMessage}}"></paper-input>
+  </template>
+  <script>
+    Polymer('webrtc-video', {
+
+    });
+  </script>
+</polymer-element>

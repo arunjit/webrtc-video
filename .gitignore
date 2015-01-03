@@ -1,0 +1,7 @@
+.*
+!.gitignore
+!client/.bowerrc
+!later/.bowerrc
+client/components
+later/components
+server/node_modules
