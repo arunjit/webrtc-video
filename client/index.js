@@ -11,6 +11,7 @@ navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
 var socket = io('//localhost:3000');
 var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
 var startButton = document.getElementById('start-btn');
 var stopButton = document.getElementById('stop-btn');
 var streaming = false;
@@ -30,14 +31,20 @@ function show(el) {
 }
 
 // Work
-function stream() {
+var streamTime = null;
+function streamFn() {
+  if (!streaming) return;
+  requestAnimationFrame(streamFn);
+
   // Throttle to ~25fps
   var now = Date.now();
-  if (stream.time && now - stream.time < 40) return;
-  stream.time = now;
-  var context = canvas.getContext('2d');
+  if (streamTime && (now - streamTime) < 40) return;
+  streamTime = now;
+
+  log('computing frame...');
   context.drawImage(video, 0, 0, WIDTH, HEIGHT);
-  var imageData = context.getImageData(0, 0, WIDTH, HEIGHT);
+  var imageData = context.getImageData(0, 0, WIDTH, HEIGHT).data;
+  log('size:', imageData.length);
   var data = [];
   for (var i = 0; i < imageData.length; i+=8) {  // skip alternate pixels
     var pixel = (imageData[i+2]&0xff)<<4 |
@@ -48,16 +55,16 @@ function stream() {
   // socket.emit('chunk', data);
   log('chunk', data);
 }
-stream.time = null;
 
 function startStreaming() {
   log('streaming...');
-  stream.time = Date.now();
-  requestAnimationFrame(stream);
+  streamTime = Date.now();
+  streamFn();
 }
 
 function stopStreaming() {
-  cancelAnimationFrame(stream);
+  cancelAnimationFrame(streamFn);
+  streaming = false;
   video.src = '';
   (videoStream && videoStream.stop) && videoStream.stop();
   show(startButton);
@@ -71,7 +78,6 @@ function askForCamera() {
     video.play();
     hide(startButton);
     show(stopButton);
-    startStreaming();
   },
   function(err) {
     log("ERR:", err);
@@ -96,7 +102,7 @@ socket.on('disconnect', function() {
 video.addEventListener('canplay', function() {
   if (!streaming) {
     streaming = true;
-    show(video);
+    startStreaming();
   }
 }, false);
 
